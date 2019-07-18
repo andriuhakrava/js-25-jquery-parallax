@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Parallax jQuery</title>
+	<style>
+		body {
+			margin: 0;
+			overflow-x:hidden;
+			border-bottom: 1px solid transparent;
+		}
+		p {
+			margin: 0;
+			padding: 10px 0;
+		}
+		.section1 {
+			background: url('background1.jpg') no-repeat left top;
+		}
+		.section2 {
+			background: url('background2.jpg') no-repeat left top;
+		}
+		.section3 {
+			background: url('background3.jpg') no-repeat left top;
+		}
+		.section1, .section2, .section3 {
+			position: relative;
+			margin-bottom: 200px;
+			height: 100vh;
+			background-color: #eee;
+		}
+		section {
+			overflow: hidden;
+		}
+		section span {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			color: #fff;
+			font-size: 120px;
+			text-shadow: 0 0 20px #000;
+		}
+		section strong {
+			position: absolute;
+			font-size: 70px;
+			text-shadow: 0 0 20px #000;
+		}
+
+		section em {
+			position: absolute;
+			font-size: 50px;
+			text-shadow: 0 0 15px blue;
+		}
+
+		.t1 {
+			color: yellow;
+			left: 50px;
+		}
+
+		.t2 {
+			color: aqua;
+			left: 100px;
+		}
+		.t3 {
+			color: fuchsia;
+			left: 150px;
+		}
+
+		.em1 {
+			color: aqua;
+			left: -300px;
+			top: 100px;
+		}
+
+		.em2 {
+			color: fuchsia;
+			right: -1000px;
+			top: 225px;		
+		}
+		.em3 {
+			color: yellow;
+			left: -5000px;
+			top: 350px;	
+		}
+		.em4 {
+			color: violet;
+			right: -150px;
+			top: 475px;
+		}
+		.em1, .em3 {
+			transition: left 1.5s ease;
+		}
+		.em2, .em4 {
+			transition: right 1.5s ease;
+		}
+		.em1.show {
+			left: 5%;
+		}
+		.em2.show {
+			right: 15%;
+		}
+		.em3.show {
+			left: 70%;
+		}
+		.em4.show {
+			right: 50%;
+		}
+		.progress-bar {
+			position: fixed;
+			z-index: 9000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 10px;
+			background: white;
+			border-bottom: 1px solid silver;
+		}
+		.progress-bar span {
+			position: absolute;
+			left: 0;
+			top: 0;
+			height: 100%;
+			width: 0;
+			background: orange;
+		}
+		.img-scroll {
+			position: fixed;
+			left: 0;
+			bottom: 0;
+		}
+	</style>
+</head>
+<body>
+	<section class="section1" data-bgscroll="200">
+		<span>Test</span>
+		<strong class="t1" data-top="400" data-bgscroll="700">Text 1</strong>
+		<strong class="t2" data-top="200" data-bgscroll="400">Text 2</strong>
+		<strong class="t3" data-top="300" data-bgscroll="200">Text 3</strong>
+		<em class="em1">Word 1</em>
+		<em class="em2">Word 2</em>
+		<em class="em3">Word 3</em>
+		<em class="em4">Word 4</em>
+	</section>
+	<section class="section2" data-bgscroll="50">
+		<span>Test</span>
+		<strong class="t1" data-top="400" data-bgscroll="700">Text 1</strong>
+		<strong class="t2" data-top="200" data-bgscroll="400">Text 2</strong>
+		<strong class="t3" data-top="300" data-bgscroll="200">Text 3</strong>
+		<em class="em1">Word 1</em>
+		<em class="em2">Word 2</em>
+		<em class="em3">Word 3</em>
+		<em class="em4">Word 4</em>
+	</section>
+	<section class="section3" data-bgscroll="500">
+		<span>Test</span>
+		<strong class="t1" data-top="400" data-bgscroll="700">Text 1</strong>
+		<strong class="t2" data-top="200" data-bgscroll="400">Text 2</strong>
+		<strong class="t3" data-top="300" data-bgscroll="200">Text 3</strong>
+		<em class="em1">Word 1</em>
+		<em class="em2">Word 2</em>
+		<em class="em3">Word 3</em>
+		<em class="em4">Word 4</em>
+	</section>
+	<script src="jquery-3.3.1.min.js"></script>
+	<script>
+		let $window = $(window);
+		let $sections = $('section');
+		let $body = $(document.body);
+		$window.on('load', function(){
+			let html = '<div class="progress-bar"><span></span></div>';
+			html += '<img src="vehicle.png" alt="vehicle" class="img-scroll">'
+			$body.append(html);
+			let $progressSpan = $('.progress-bar span');
+			let $imgScroll = $('.img-scroll');
+			let imgWidth = 0;
+			$imgScroll.on('load', function(){
+				imgWidth = $imgScroll.width();
+			})
+			
+			$sections.each(function(){
+				/* розмір фона */
+				let $section = $(this);
+				let img = new Image();
+				let reg = /^url\("?(.+?)"\)/;
+				let src = reg.exec(getComputedStyle(this).backgroundImage)[1];
+				img.src = src;
+				let bgScroll = parseInt($section.data('bgscroll'));
+				if (isNaN(bgScroll)) bgScroll = 0;
+				console.log(img.naturalWidth, img.naturalHeight);
+				let h = $section.innerHeight() + bgScroll;
+				let w = img.naturalWidth * h / img.naturalHeight;
+				console.log(w, h);
+				$section.css('background-size', w + 'px ' + h + 'px');
+				$section.children('strong').each(function(){
+					$(this).css('top', $(this).data('top') + 'px');
+				})
+			});
+			
+			$(window).on('scroll', function(){
+				let scrollTop = $window.scrollTop();
+				let windowHeight = $window.height();
+				$sections.each(function(){
+					let $section = $(this);
+					let bgScroll = parseInt($section.data('bgscroll'));
+					if (isNaN(bgScroll)) bgScroll = 0;
+					let sectionOffsetTop = $section.offset().top;
+					let sectionShow = sectionOffsetTop - windowHeight;
+					let sectionHide = sectionOffsetTop + $section.outerHeight();
+					let deltaScroll = sectionHide - sectionShow;
+					let bgTop = - (scrollTop - sectionShow) / deltaScroll * bgScroll;
+					$section.css('background-position', '0 ' + bgTop + 'px');
+					$section.children('strong').each(function(){
+						let $strong = $(this);
+						let bgScroll = parseInt($strong.data('bgscroll'));
+						let dataTop = parseInt($strong.data('top')) - bgScroll / 2;
+						let strongTop = (scrollTop - sectionShow) / deltaScroll * bgScroll + dataTop;
+						$strong.css('top', strongTop + 'px');
+					})
+				});
+
+				$('em:not(.show)').each(function(){
+					let $em = $(this);
+					let offsetTop = $em.offset().top;
+					if (offsetTop < scrollTop + windowHeight * 0.5) $em.addClass('show');
+				});
+
+				let bodyWidth = $body.width();
+				let bodyHeight = $body.height();
+				let deltaScroll = bodyHeight - windowHeight;
+				let progress = scrollTop / deltaScroll * 100;
+				let deltaXimg = bodyWidth - imgWidth;
+				let progressImg = deltaXimg * progress / bodyWidth;
+				
+				console.log(progress);
+				$progressSpan.css('width', progress + '%');
+				$imgScroll.css('left', progressImg + '%');
+			}).trigger('scroll');
+		});
+
+		$(document.body).on('click', function(){
+			$('em').addClass('show');
+		});
+	</script>
+</body>
+</html>
